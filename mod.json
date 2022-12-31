@@ -1,0 +1,56 @@
+{
+  "ConVars": [
+    {
+      "DefaultValue": "${var locals = getstackinfos(3).locals;var s; if(lastFlyout.victim == locals.victim  && Time() - lastFlyout.damageTime < 3){s = locals.summedDamage + locals.damage}else{s = locals.damage};; return s.tostring()} DMG",
+      "Flags": 16777232,
+      "Name": "elab_title_macro"
+    },
+    {
+      "DefaultValue": "${var locals = getstackinfos(3).locals; var totalhealth = locals.victim.GetHealth() - locals.damage;return (totalhealth < 0 ? 0 : totalhealth / locals.victim.GetMaxHealth() * 100).tostring()}% HP",
+      "Flags": 16777232,
+      "Name": "elab_desc_macro"
+    },
+    {
+      "DefaultValue": "0",
+      "Flags": 16777232,
+      "Name": "elab_use_compact"
+    },
+    {
+      "DefaultValue": "0.75 0.25 0",
+      "Flags": 16777232,
+      "Name": "elab_compact_pos"
+    },
+    {
+      "DefaultValue": "1 1 1",
+      "Flags": 16777232,
+      "Name": "elab_compact_color"
+    },
+    {
+      "DefaultValue": "20",
+      "Flags": 16777232,
+      "Name": "elab_compact_size"
+    }
+  ],
+  "Description": "Creates a customizable interface that displays how much damage has been dealt.",
+  "LoadPriority": 2,
+  "Name": "Odd.DamageFlyout",
+  "RequiredOnClient": false,
+  "Scripts": [
+    {
+      "ClientCallback": {
+        "After": "InitElaborateDamageFlyout"
+      },
+      "Path": "damageflyout.nut",
+      "RunOn": "CLIENT"
+    },
+    {
+      "Path": "ui/elab_damageflyout_mod_settings.nut",
+      "RunOn": "UI",
+      "UICallback": {
+        "After": "ElaborateDamageFlyoutAddModSettings"
+      }
+    }
+  ],
+  "ThunderstoreModString": "odds-DamageFlyout-1.0.0",
+  "Version": "1.0"
+}

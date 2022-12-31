@@ -49,7 +49,7 @@ jobs:
           # Package version to publish
           version: ${{ env.cleanVersion }} # This is the tag that was created in the release but without the leading 'v'
           # Description of the mod
-          description: example mod description
+          description: Customizable interface that displays how much damage has been dealt.
           # Thunderstore API token
           token: ${{ secrets.TS_KEY }} 
           # Directory to wrap the contents of the repo in

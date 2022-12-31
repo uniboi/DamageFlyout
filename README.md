@@ -1,26 +1,60 @@
-# NSModTemplate
-A template repository for Northstar mods with a ~~mostly~~ pre-configured github action for publishing to Thunderstore
+# Dependencies
 
-## Usage
-<ol>
-<li> Click the <code>Use this template</code> button on the top right of the repo's landing page (<a href="https://github.com/GreenTF/NSModTemplate">here</a>)</li>
-<li> Give the new repo a name and make sure it's set to <code>public</code></li>
-<li> <details><summary> In the <code>settings</code> tab, under <code>actions</code> -> <code>general</code>, set <code>Actions permissions</code> to <code>Allow all actions and reusable workflows</code></summary>
-<img src="https://user-images.githubusercontent.com/4367791/180306016-04bfc321-b60f-4ed0-ac0c-5a6065036e2c.png" />
-</details></li>
-<li> <details><summary> Also in <code>settings</code>, under <code>secrets</code> ->  <code>actions</code>, add your Thunderstore token as a secret named <code>TS_KEY</code> (Steps for getting a token can be found <a href="https://github.com/GreenTF/upload-thunderstore-package/wiki">here</a>)</summary>
-  <img src="https://user-images.githubusercontent.com/4367791/180306285-60dd51ec-0448-44af-aa92-682599c6c0f4.png" />
-  <img src="https://user-images.githubusercontent.com/4367791/180306391-a217f309-e875-4e74-8270-8155c60dbcdc.png" />
-</details>
-</li>
-  <li> <details><summary>Edit <code>.github/workflows/publish.yml</code> ~line 43 to add a description for your mod </summary>
-    <img src="https://user-images.githubusercontent.com/4367791/180337843-5213db45-850b-4759-98c5-9ad47cbab7ba.png" />
-    </details>
-  </li>
+EladNLG's ModSettings are required.
+Get the mod here: https://northstar.thunderstore.io/package/EladNLG/ModSettings/
 
-<li> Update this README and <code>icon.png</code> as they will be used by Thunderstore as well </li>
-<li> Write your mod! (HINT: Find the docs <a href="https://r2northstar.readthedocs.io/en/latest/guides/gettingstarted.html">here</a>) </li>
-<li> Before pushing large files (100mb or larger), run <code>concat_assets.sh</code> and commit the archives instead. Your archives will be automatically concatted and extracted when creating a github release so the mod is downloadable from thunderstore without any extra steps</li>
-</ol>
+# Usage
 
+There are two different places for macros available. To define a macro, change it in the ModSettings. I recommend writing the macro in a text editor and pasting it in.
+A macro is a string that contains tokens that get compiled and executed at runtime. You can declare a token with `${}`.
+For example, writing `static` as a macro will always display "static" as title/description.
+Writing `${var locals = getstackinfos(3).locals; return locals.damage.tostring()}` DMG instead will output "xDMG" where "x" is the amout of damage the entity has received. It is possible to use `{` and `}` brackets in a macro.
+Every token is required to return a string
+Macros can't be statically typed.
 
+There is no limit on the number of tokens. For example, something like this is possible: `pre-token ${return "token1"} mid-token ${return "token2"} post token`. This would return "pre-token token1 mid-token token2".
+
+You can switch between a "fancy" flyout and a "compact" one. The compact version looks more like the one from the original DamageDisplay. The fancy one can be a bit distracting because it points to the position of the entity for a few seconds.
+
+## Writing Custom Macros
+
+Tokens get passed some parameters:
+
+- float damage
+- vector damagePosition
+- entity victim
+- bool isCrit
+- bool isIneffective
+- float summedDamage
+
+You can access those with `getstackinfos(3).locals.variable`. You can also use every other global variable.
+To get information about the last flyout, use `lastFlyout`.
+
+lastFlyout contains the rui, the last victim, last damage dealt and the time when.
+
+### Examples
+
+Here are some examples for macros:
+```
+Get the damage of each individual shot: (x DMG)
+${var locals = getstackinfos(3).locals; return locals.damage.tostring()} DMG
+
+Get the combined damage you have dealt to a single individual in the last 3 seconds: (x DMG)
+${var locals = getstackinfos(3).locals;var s; if(lastFlyout.victim == locals.victim  && Time() - lastFlyout.damageTime < 3){s = locals.summedDamage + locals.damage}else{s = locals.damage};; return s.tostring()} DMG
+
+Total HP of the Victim and the Max HP of the victim: ( HP / MAXHP)
+${var locals = getstackinfos(3).locals; return (locals.victim.GetHealth() - locals.damage).tostring()}/${return getstackinfos(3).locals.victim.GetMaxHealth().tostring()} HP
+
+Remaining health percentage: (x% HP)
+${var locals = getstackinfos(3).locals; var totalhealth = locals.victim.GetHealth() - locals.damage;format("%.1f",totalhealth < 0 ? 0 : totalhealth / locals.victim.GetMaxHealth() * 100)}% HP
+
+Viewplayer KD:
+${var locals = getstackinfos(3).locals; var kills = GetLocalViewPlayer().GetPlayerGameStat(PGS_KILLS).tofloat();if(locals.victim.GetHealth() - locals.damage < 0){kills++}; var deaths = GetLocalViewPlayer().GetPlayerGameStat(PGS_DEATHS).tofloat(); deaths = deaths ? deaths : 1; return format("%.2f", kills/deaths)} KD
+
+Kills:
+${var locals = getstackinfos(3).locals;var kills = GetLocalViewPlayer().GetPlayerGameStat(PGS_KILLS);if(locals.victim.GetHealth() - locals.damage < 0){kills++};return kills.tostring()} Kills
+```
+
+You can see what is looks like in this video:
+
+[![Showcase Video](https://media.discordapp.net/attachments/936310823612215326/973730514034913323/DamageDisplay_preview.mp4?format=jpeg&width=600&height=338)](https://cdn.discordapp.com/attachments/936310823612215326/973730514034913323/DamageDisplay_preview.mp4 "Showcase")

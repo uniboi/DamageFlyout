@@ -54,4 +54,4 @@ jobs:
           token: ${{ secrets.TS_KEY }} 
           # Directory to wrap the contents of the repo in
           wrap: mods/${{ github.repository_owner }}.${{ env.name }} # This will wrap your Author.ModName folder in a mods/ folder before publishing
-          deps: EladNLG-ModSettings@1.1.1
+          deps: EladNLG-ModSettings@2.0.2
